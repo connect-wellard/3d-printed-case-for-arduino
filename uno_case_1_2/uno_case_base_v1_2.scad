@@ -9,6 +9,7 @@
 include <uno_case_param_v1_2.scad>
 
 //------------------------------------------------------------------------- MODULES
+// pcd standoffs
 module pcbLeg() {		
 	translate([0, 0, 0])
 	difference() { 											
@@ -24,7 +25,7 @@ difference()
 	union()
 	{
 		// Add Base
-		linear_extrude(height = height/2, convexity = 10)
+		linear_extrude(height = baseHeight, convexity = 10)
 		minkowski()
 		{									
 			square([width, wide], center = true);
@@ -38,7 +39,7 @@ difference()
 		translate([0, 0, floorHeight])
 		{
 			// Cut Base hole
-			linear_extrude(height = height/2, convexity = 10)
+			linear_extrude(height = baseHeight, convexity = 10)
 			minkowski()
 			{
 				square([width, wide], center = true);
@@ -46,10 +47,12 @@ difference()
 			}
 			// Cut upper block lock
 			difference() {
-				translate([0, 0, height/2 - floorHeight - blockLockSize]) {
+				// outer lock, recessed
+				translate([0, 0, baseHeight - floorHeight - blockLockSize]) {
 					cylinder(h = blockLockSize+gap, r=width);
 				}
-				translate([0, 0, height/2 - floorHeight - blockLockSize - gap*2]) {
+				// inner lock, raised
+				translate([0, 0, baseHeight - floorHeight - blockLockSize - gap*2]) {
 					linear_extrude(height = blockLockSize+gap*4, convexity = 10)
 					minkowski() {
 						square([width, wide], center=true);
@@ -58,13 +61,15 @@ difference()
 				}
 			}
 			// Cut x panels 
+			// if we want to enclose the power and usb sockets, this is where we need to play (maybe)
+			
 			for (i = [0 : 180 : 180])				
 			rotate([0, 0, i])
 			translate([width/2 + roundR - pillarSize/2 - layerWidth*7, 0, 0])
 			{
 				// Cut X panel hole
-				translate([0, 0, height/2])
-				cube([pillarSize, sidePanelXWidth, height], center=true);
+				translate([0, 0, baseHeight/2])
+				cube([pillarSize, sidePanelXWidth, baseHeight], center=true);
                 
 				// Cut X, Y srew holes
 				for (i = [wide/2, -wide/2])
@@ -75,7 +80,7 @@ difference()
 						rotate([0, 0, 45])
 						translate([screwHoleRoundR, 0, 0])
 						{
-							cylinder(h = height*2, r=screwExt/2, center=true);
+							cylinder(h = baseHeight*2, r=screwExt/2, center=true);
 							cylinder(h = 5,
                                     r1 = (screwHead + (screwHead - screwExt))/2,
                                     r2 = screwExt/2, center=true);
@@ -86,7 +91,7 @@ difference()
 						rotate([0, 0, -45])
 						translate([screwHoleRoundR, 0, 0])
 						{
-							cylinder(h = height*2, r=screwExt/2, center=true);
+							cylinder(h = baseHeight*2, r=screwExt/2, center=true);
 							cylinder(h = 5,
                                     r1 = (screwHead + (screwHead - screwExt))/2,
                                     r2 = screwExt/2, center=true);
@@ -94,14 +99,15 @@ difference()
 					}
 				}
 			}
+			
 			// Cut Y panels 
 			for (i = [90 : 180 : 270])
 			rotate([0, 0, i])
 			translate([wide/2 + roundR - pillarSize/2 - layerWidth*7, 0, 0])
 			{
 				// Cut Y panel hole
-				translate([0, 0, height/2])
-				cube([pillarSize, sidePanelYWidth, height], center=true);
+				translate([0, 0, baseHeight/2])
+				cube([pillarSize, sidePanelYWidth, baseHeight], center=true);
 			}
 			
             // Cut USB and Power holes
@@ -120,7 +126,7 @@ difference()
 	}
 }
 
-//------------------------------------------------------------------------- ADD PCB LEGS
+//------------------------------------------------------------------------- ADD PCB STANDOFFS
 // Translate to pcbPositionX	
 translate([-pcbPositionX, -pcbWide/2, 0])
 
